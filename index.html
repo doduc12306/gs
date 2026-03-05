@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theo Dõi Học Tập - Phạm Quang Tuấn</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome cho icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- File CSS chính -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ============================================= -->
+    <!-- HEADER - Chỉ logo, không có menu điều hướng -->
+    <!-- ============================================= -->
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo">
+                <span>Hệ Thống Theo Dõi Học Tập</span>
+            </div>
+            <!-- Nút tải lại dữ liệu -->
+            <button class="btn-refresh" id="btnRefresh" title="Tải lại dữ liệu">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- ============================================= -->
+    <!-- DASHBOARD - Tất cả nội dung trên 1 trang -->
+    <!-- ============================================= -->
+    <main class="main container">
+
+        <!-- ========== PHẦN 1: THÔNG TIN HỌC SINH ========== -->
+        <div class="card student-card">
+            <div class="student-avatar">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <h1 class="student-name">Phạm Quang Tuấn</h1>
+
+            <!-- Thông tin nhanh -->
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-icon current">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="info-text">
+                        <span class="info-label">Điểm hiện tại</span>
+                        <span class="info-value">6 - 7</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon target">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <div class="info-text">
+                        <span class="info-label">Mục tiêu</span>
+                        <span class="info-value">8 - 8.5</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon weakness">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="info-text">
+                        <span class="info-label">Điểm yếu</span>
+                        <span class="info-value">Nguyên hàm</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon progress-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="info-text">
+                        <span class="info-label">Tiến độ</span>
+                        <span class="info-value" id="progressStatus">Đang cập nhật...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== PHẦN 2: THỐNG KÊ + LỘ TRÌNH ========== -->
+        <!-- Các card thống kê nhanh -->
+        <div class="stats-grid">
+            <div class="card stat-card">
+                <div class="stat-icon sessions-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number" id="totalSessions">0</span>
+                    <span class="stat-label">Buổi đã học</span>
+                </div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-icon understand-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number" id="avgUnderstanding">0</span>
+                    <span class="stat-label">TB mức hiểu bài</span>
+                </div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-icon homework-icon">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number" id="homeworkRate">0%</span>
+                    <span class="stat-label">Hoàn thành BT</span>
+                </div>
+            </div>
+        </div>
+
+       
+        <!-- Biểu đồ mức hiểu bài -->
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-chart-line"></i> Mức hiểu bài qua các buổi</h3>
+            <div class="chart-container" id="understandChart">
+                <p class="empty-chart" id="emptyChart">Chưa có dữ liệu thống kê.</p>
+            </div>
+        </div>
+
+        <!-- ========== PHẦN 3: DANH SÁCH BUỔI HỌC (read-only) ========== -->
+        <h2 class="section-title"><i class="fas fa-book-open"></i> Nhật ký buổi học</h2>
+
+        <!-- Bộ lọc theo tháng -->
+        <div class="card filter-bar">
+            <div class="filter-group">
+                <label for="monthFilter"><i class="fas fa-filter"></i> Lọc theo tháng:</label>
+                <select id="monthFilter" class="filter-select">
+                    <option value="all">Tất cả</option>
+                </select>
+            </div>
+            <div class="month-count" id="monthCount">
+                <i class="fas fa-calendar-check"></i>
+                <span id="monthCountText">0 buổi</span>
+            </div>
+        </div>
+
+        <div id="sessionsList" class="sessions-list">
+            <!-- Các buổi học sẽ được render bằng JavaScript -->
+            <div class="empty-state" id="emptyState">
+                <i class="fas fa-inbox"></i>
+                <p>Chưa có buổi học nào được ghi nhận.</p>
+            </div>
+        </div>
+
+        <!-- ========== PHẦN 4: THANH TOÁN ========== -->
+        <h2 class="section-title"><i class="fas fa-wallet"></i> Thanh toán học phí</h2>
+
+        <div class="card payment-card">
+            <div class="payment-header">
+                <i class="fas fa-qrcode payment-qr-icon"></i>
+                <h3>Quét mã để chuyển khoản</h3>
+            </div>
+
+            <!-- Ảnh QR code placeholder -->
+            <div class="qr-wrapper">
+                <div class="qr-placeholder" id="qrImage">
+                    <img src="qr-code.png" alt="QR Code" width="200" height="200">
+                </div>
+            </div>
+
+            <!-- Thông tin chuyển khoản -->
+            <div class="payment-info">
+                <p class="payment-note">
+                    <i class="fas fa-info-circle"></i>
+                    Quý phụ huynh vui lòng quét mã QR hoặc chuyển khoản theo thông tin bên dưới.
+                </p>
+                <div class="bank-details">
+                    <div class="bank-row">
+                        <span class="bank-label">Ngân hàng:</span>
+                        <span class="bank-value">MB Bank</span>
+                    </div>
+                    <div class="bank-row">
+                        <span class="bank-label">Số tài khoản:</span>
+                        <span class="bank-value">23413355555</span>
+                    </div>
+                    <div class="bank-row">
+                        <span class="bank-label">Chủ tài khoản:</span>
+                        <span class="bank-value">DO NGUYEN ANH DUC</span>
+                    </div>
+                    <div class="bank-row">
+                        <span class="bank-label">Nội dung CK:</span>
+                        <span class="bank-value">Hoc phi - Pham Quang Tuan</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Đang tải dữ liệu...</p>
+        </div>
+    </div>
+
+    <!-- Thông báo toast -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMsg">Thao tác thành công!</span>
+    </div>
+
+    <!-- File JavaScript chính -->
+    <script src="script.js"></script>
+</body>
+</html>
