@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Quản Lý Buổi Học (Offline)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ===== ADMIN-SPECIFIC STYLES ===== */
+        body {
+            background-color: #f0f4f8;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            box-shadow: var(--shadow-md);
+        }
+
+        .admin-header .logo span {
+            color: var(--white);
+        }
+
+        .admin-badge {
+            background: rgba(255,255,255,0.2);
+            color: var(--white);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* File actions bar */
+        .file-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            background: #2d9348;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .btn-outline {
+            background: var(--white);
+            color: var(--gray-700);
+            border: 1.5px solid var(--gray-300);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 0.8rem;
+        }
+
+        /* Hidden file input */
+        .file-input-hidden {
+            display: none;
+        }
+
+        /* Form */
+        .form-card {
+            border-top: 4px solid var(--primary);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group label i {
+            color: var(--primary);
+            margin-right: 4px;
+        }
+
+        .form-control {
+            padding: 10px 14px;
+            border: 1.5px solid var(--gray-300);
+            border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            color: var(--gray-900);
+            transition: var(--transition);
+            background: var(--white);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Slider */
+        .slider-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slider-wrapper input[type="range"] {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--gray-200);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .slider-wrapper input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(26, 115, 232, 0.3);
+        }
+
+        .slider-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            min-width: 40px;
+            text-align: center;
+        }
+
+        /* Homework builder */
+        .hw-builder {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .hw-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hw-row input[type="text"] {
+            flex: 1;
+        }
+
+        .hw-row input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .hw-add-btn {
+            align-self: flex-start;
+        }
+
+        .hw-remove-btn {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            padding: 4px 8px;
+            font-size: 0.9rem;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .hw-remove-btn:hover {
+            background: #fce4ec;
+        }
+
+        /* Session table/list in admin */
+        .admin-session-card {
+            border-left: 4px solid var(--primary);
+            position: relative;
+        }
+
+        .admin-session-card.editing {
+            border-left-color: var(--warning);
+            background: #fffde7;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        /* Sessions count badge */
+        .session-count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Form actions */
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        /* Warning banner */
+        .warning-banner {
+            background: #fff3e0;
+            border: 1px solid #ffe0b2;
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            color: var(--gray-700);
+        }
+
+        .warning-banner i {
+            color: var(--orange);
+            font-size: 1.1rem;
+        }
+
+        /* Status indicator */
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: var(--gray-500);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--gray-300);
+        }
+
+        .status-dot.loaded {
+            background: var(--success);
+        }
+
+        .status-dot.modified {
+            background: var(--warning);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .file-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+
+            .status-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header admin-header">
+        <div class="container header-inner">
+            <div class="logo">
+                <span><i class="fas fa-cog"></i> Quản Lý Buổi Học</span>
+            </div>
+            <span class="admin-badge"><i class="fas fa-lock"></i> Offline</span>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="main container">
+
+        <!-- Warning -->
+        <div class="warning-banner">
+            <i class="fas fa-info-circle"></i>
+            <span>Trang này dùng offline. Chỉnh sửa xong → Tải CSV → Commit lên GitHub.</span>
+        </div>
+
+        <!-- File Actions -->
+        <div class="card">
+            <div class="status-bar">
+                <div class="file-actions">
+                    <button class="btn btn-outline" id="btnLoadCSV" title="Tải file CSV hiện tại">
+                        <i class="fas fa-folder-open"></i> Mở file CSV
+                    </button>
+                    <input type="file" id="csvFileInput" accept=".csv" class="file-input-hidden">
+                    <button class="btn btn-success" id="btnDownloadCSV" title="Tải xuống file CSV đã chỉnh sửa">
+                        <i class="fas fa-download"></i> Tải CSV xuống
+                    </button>
+                </div>
+                <div class="status-indicator" id="statusIndicator">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Chưa tải file</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Form -->
+        <div class="card form-card">
+            <h3 class="card-title" id="formTitle"><i class="fas fa-plus-circle"></i> Thêm buổi học mới</h3>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label><i class="fas fa-calendar-day"></i> Ngày học</label>
+                    <input type="date" class="form-control" id="inputDate">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-brain"></i> Mức hiểu bài</label>
+                    <div class="slider-wrapper">
+                        <input type="range" id="inputLevel" min="1" max="10" value="5">
+                        <span class="slider-value" id="levelValue">5</span>
+                        <span style="font-size:0.8rem;color:var(--gray-500)">/10</span>
+                    </div>
+                </div>
+                <div class="form-group full-width">
+                    <label><i class="fas fa-pen"></i> Nội dung học</label>
+                    <textarea class="form-control" id="inputContent" placeholder="Nội dung buổi học..."></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label><i class="fas fa-tasks"></i> Bài tập về nhà</label>
+                    <div class="hw-builder" id="hwBuilder">
+                        <!-- Homework rows sẽ được thêm bằng JS -->
+                    </div>
+                    <button class="btn btn-outline btn-sm hw-add-btn" id="btnAddHW" type="button">
+                        <i class="fas fa-plus"></i> Thêm bài tập
+                    </button>
+                </div>
+                <div class="form-group full-width">
+                    <label><i class="fas fa-comment-dots"></i> Nhận xét gia sư</label>
+                    <textarea class="form-control" id="inputComment" placeholder="Nhận xét về buổi học..."></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label><i class="fas fa-redo"></i> Cần ôn tập thêm</label>
+                    <input type="text" class="form-control" id="inputReview" placeholder="Các chủ đề cần ôn tập...">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-primary" id="btnSave">
+                    <i class="fas fa-save"></i> Lưu buổi học
+                </button>
+                <button class="btn btn-outline" id="btnCancel" style="display:none">
+                    <i class="fas fa-times"></i> Huỷ
+                </button>
+            </div>
+        </div>
+
+        <!-- Session list -->
+        <div class="status-bar" style="margin-bottom: 16px;">
+            <h2 class="section-title" style="margin:0"><i class="fas fa-book-open"></i> Danh sách buổi học</h2>
+            <span class="session-count-badge" id="adminSessionCount">
+                <i class="fas fa-calendar-check"></i> <span id="adminCountText">0 buổi</span>
+            </span>
+        </div>
+
+        <div id="adminSessionsList">
+            <div class="empty-state" id="adminEmptyState">
+                <i class="fas fa-inbox"></i>
+                <p>Chưa có buổi học. Mở file CSV hoặc thêm buổi mới.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMsg">Thao tác thành công!</span>
+    </div>
+
+    <script>
+    /**
+     * ================================================
+     * ADMIN.JS - Quản lý buổi học offline
+     * Đọc/Sửa file data.csv, tải về CSV mới
+     * ================================================
+     */
+
+    // ===== STATE =====
+    let sessions = [];
+    let editingId = null; // id đang sửa (null = thêm mới)
+    let isModified = false;
+
+    // ===== CSV PARSING & BUILDING =====
+
+    function parseCSVLine(line) {
+        const fields = [];
+        let current = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+            const ch = line[i];
+            if (inQuotes) {
+                if (ch === '"') {
+                    if (i + 1 < line.length && line[i + 1] === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuotes = false;
+                    }
+                } else {
+                    current += ch;
+                }
+            } else {
+                if (ch === '"') {
+                    inQuotes = true;
+                } else if (ch === ',') {
+                    fields.push(current);
+                    current = '';
+                } else {
+                    current += ch;
+                }
+            }
+        }
+        fields.push(current);
+        return fields;
+    }
+
+    function parseCSV(csvText) {
+        const lines = csvText.split(/\r?\n/).filter(l => l.trim() !== '');
+        if (lines.length < 1) return [];
+        // skip header
+        return lines.slice(1).map(line => {
+            const v = parseCSVLine(line);
+            let homework = [];
+            try { homework = JSON.parse(v[3] || '[]'); } catch(e) { homework = []; }
+            return {
+                id: (v[0] || '').trim(),
+                date: (v[1] || '').trim(),
+                content: (v[2] || '').trim(),
+                homework: homework,
+                comment: (v[4] || '').trim(),
+                reviewNeeded: (v[5] || '').trim(),
+                understandLevel: parseInt(v[6]) || 0
+            };
+        });
+    }
+
+    function escapeCSVField(value) {
+        const str = String(value);
+        if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+            return '"' + str.replace(/"/g, '""') + '"';
+        }
+        return str;
+    }
+
+    function buildCSV(sessions) {
+        const header = 'id,date,content,homework,comment,reviewNeeded,understandLevel';
+        const rows = sessions.map(s => {
+            const hwJson = JSON.stringify(s.homework || []);
+            return [
+                escapeCSVField(s.id),
+                escapeCSVField(s.date),
+                escapeCSVField(s.content),
+                escapeCSVField(hwJson),
+                escapeCSVField(s.comment),
+                escapeCSVField(s.reviewNeeded),
+                s.understandLevel
+            ].join(',');
+        });
+        return header + '\n' + rows.join('\n') + '\n';
+    }
+
+    // ===== GENERATE ID =====
+    function generateId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    }
+
+    // ===== FILE I/O =====
+
+    document.getElementById('btnLoadCSV').addEventListener('click', () => {
+        document.getElementById('csvFileInput').click();
+    });
+
+    document.getElementById('csvFileInput').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            sessions = parseCSV(ev.target.result);
+            isModified = false;
+            updateStatus('loaded');
+            renderAdminSessions();
+            showToast('✅ Đã tải ' + sessions.length + ' buổi học');
+        };
+        reader.readAsText(file, 'UTF-8');
+        // Reset input để có thể tải lại cùng file
+        e.target.value = '';
+    });
+
+    document.getElementById('btnDownloadCSV').addEventListener('click', () => {
+        const csv = buildCSV(sessions);
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'data.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+        isModified = false;
+        updateStatus('loaded');
+        showToast('✅ Đã tải file data.csv');
+    });
+
+    // ===== STATUS =====
+    function updateStatus(state) {
+        const dot = document.getElementById('statusDot');
+        const text = document.getElementById('statusText');
+        if (state === 'loaded') {
+            dot.className = 'status-dot loaded';
+            text.textContent = sessions.length + ' buổi học đã tải';
+        } else if (state === 'modified') {
+            dot.className = 'status-dot modified';
+            text.textContent = 'Đã chỉnh sửa — chưa lưu';
+        } else {
+            dot.className = 'status-dot';
+            text.textContent = 'Chưa tải file';
+        }
+    }
+
+    function markModified() {
+        isModified = true;
+        updateStatus('modified');
+    }
+
+    // ===== HOMEWORK BUILDER =====
+
+    function addHWRow(name = '', completed = false) {
+        const builder = document.getElementById('hwBuilder');
+        const row = document.createElement('div');
+        row.className = 'hw-row';
+        row.innerHTML = `
+            <input type="checkbox" ${completed ? 'checked' : ''} title="Đã hoàn thành">
+            <input type="text" class="form-control" placeholder="Tên bài tập..." value="${escapeHtml(name)}" style="flex:1">
+            <button type="button" class="hw-remove-btn" title="Xoá"><i class="fas fa-trash"></i></button>
+        `;
+        row.querySelector('.hw-remove-btn').addEventListener('click', () => row.remove());
+        builder.appendChild(row);
+    }
+
+    document.getElementById('btnAddHW').addEventListener('click', () => addHWRow());
+
+    function getHomeworkFromBuilder() {
+        const rows = document.querySelectorAll('#hwBuilder .hw-row');
+        const hw = [];
+        rows.forEach(row => {
+            const name = row.querySelector('input[type="text"]').value.trim();
+            const completed = row.querySelector('input[type="checkbox"]').checked;
+            if (name) hw.push({ name, completed });
+        });
+        return hw;
+    }
+
+    function clearHWBuilder() {
+        document.getElementById('hwBuilder').innerHTML = '';
+    }
+
+    // ===== FORM =====
+
+    // Slider value display
+    const inputLevel = document.getElementById('inputLevel');
+    const levelValue = document.getElementById('levelValue');
+    inputLevel.addEventListener('input', () => {
+        levelValue.textContent = inputLevel.value;
+    });
+
+    // Set today as default date
+    document.getElementById('inputDate').valueAsDate = new Date();
+
+    function resetForm() {
+        document.getElementById('inputDate').valueAsDate = new Date();
+        document.getElementById('inputContent').value = '';
+        document.getElementById('inputComment').value = '';
+        document.getElementById('inputReview').value = '';
+        inputLevel.value = 5;
+        levelValue.textContent = '5';
+        clearHWBuilder();
+        editingId = null;
+        document.getElementById('formTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Thêm buổi học mới';
+        document.getElementById('btnSave').innerHTML = '<i class="fas fa-save"></i> Lưu buổi học';
+        document.getElementById('btnCancel').style.display = 'none';
+    }
+
+    function fillFormForEdit(session) {
+        editingId = session.id;
+        document.getElementById('inputDate').value = session.date;
+        document.getElementById('inputContent').value = session.content;
+        document.getElementById('inputComment').value = session.comment;
+        document.getElementById('inputReview').value = session.reviewNeeded;
+        inputLevel.value = session.understandLevel;
+        levelValue.textContent = session.understandLevel;
+        clearHWBuilder();
+        (session.homework || []).forEach(hw => addHWRow(hw.name, hw.completed));
+        document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> Sửa buổi học';
+        document.getElementById('btnSave').innerHTML = '<i class="fas fa-save"></i> Cập nhật';
+        document.getElementById('btnCancel').style.display = 'inline-flex';
+        // Scroll to form
+        document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    document.getElementById('btnSave').addEventListener('click', () => {
+        const date = document.getElementById('inputDate').value;
+        const content = document.getElementById('inputContent').value.trim();
+        const comment = document.getElementById('inputComment').value.trim();
+        const reviewNeeded = document.getElementById('inputReview').value.trim();
+        const understandLevel = parseInt(inputLevel.value);
+        const homework = getHomeworkFromBuilder();
+
+        if (!date) { showToast('⚠️ Vui lòng chọn ngày học'); return; }
+        if (!content) { showToast('⚠️ Vui lòng nhập nội dung học'); return; }
+
+        if (editingId) {
+            // Update
+            const idx = sessions.findIndex(s => s.id === editingId);
+            if (idx >= 0) {
+                sessions[idx] = { ...sessions[idx], date, content, homework, comment, reviewNeeded, understandLevel };
+                showToast('✅ Đã cập nhật buổi học');
+            }
+        } else {
+            // Add new
+            sessions.push({
+                id: generateId(),
+                date,
+                content,
+                homework,
+                comment,
+                reviewNeeded,
+                understandLevel
+            });
+            showToast('✅ Đã thêm buổi học mới');
+        }
+
+        markModified();
+        resetForm();
+        renderAdminSessions();
+    });
+
+    document.getElementById('btnCancel').addEventListener('click', () => {
+        resetForm();
+    });
+
+    // ===== RENDER ADMIN SESSION LIST =====
+
+    function renderAdminSessions() {
+        const list = document.getElementById('adminSessionsList');
+        const empty = document.getElementById('adminEmptyState');
+        const countText = document.getElementById('adminCountText');
+
+        countText.textContent = sessions.length + ' buổi';
+
+        // Clear old cards
+        const oldCards = list.querySelectorAll('.admin-session-card');
+        oldCards.forEach(c => c.remove());
+
+        if (sessions.length === 0) {
+            empty.style.display = 'block';
+            return;
+        }
+
+        empty.style.display = 'none';
+
+        // Sort newest first
+        const sorted = [...sessions].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        sorted.forEach(session => {
+            const card = document.createElement('div');
+            card.className = 'card admin-session-card';
+            card.setAttribute('data-id', session.id);
+
+            let levelClass = 'level-low';
+            if (session.understandLevel >= 7) levelClass = 'level-high';
+            else if (session.understandLevel >= 4) levelClass = 'level-medium';
+
+            let hwHtml = '';
+            if (session.homework && session.homework.length > 0) {
+                hwHtml = session.homework.map(hw => {
+                    const cls = hw.completed ? 'completed' : '';
+                    const icon = hw.completed ? 'fa-check-circle' : 'fa-circle';
+                    return `<div class="hw-item ${cls}"><i class="fas ${icon}"></i> <span>${escapeHtml(hw.name)}</span></div>`;
+                }).join('');
+            } else {
+                hwHtml = '<span style="color:var(--gray-500);font-size:0.85rem;">Không có bài tập</span>';
+            }
+
+            card.innerHTML = `
+                <div class="session-header">
+                    <div class="session-date">
+                        <i class="fas fa-calendar-day"></i>
+                        ${formatDate(session.date)}
+                    </div>
+                    <span class="session-level ${levelClass}">
+                        <i class="fas fa-brain"></i> ${session.understandLevel}/10
+                    </span>
+                </div>
+                <div class="session-body">
+                    <div class="session-field">
+                        <span class="session-field-label"><i class="fas fa-pen"></i> Nội dung học</span>
+                        <span class="session-field-value">${escapeHtml(session.content)}</span>
+                    </div>
+                    <div class="session-field">
+                        <span class="session-field-label"><i class="fas fa-tasks"></i> Bài tập</span>
+                        <div class="session-field-value">${hwHtml}</div>
+                    </div>
+                    <div class="session-field">
+                        <span class="session-field-label"><i class="fas fa-comment-dots"></i> Nhận xét gia sư</span>
+                        <span class="session-field-value">${escapeHtml(session.comment)}</span>
+                    </div>
+                    <div class="session-field">
+                        <span class="session-field-label"><i class="fas fa-redo"></i> Cần ôn tập thêm</span>
+                        <span class="session-field-value">${escapeHtml(session.reviewNeeded)}</span>
+                    </div>
+                </div>
+                <div class="admin-actions">
+                    <button class="btn btn-outline btn-sm btn-edit" data-id="${session.id}">
+                        <i class="fas fa-edit"></i> Sửa
+                    </button>
+                    <button class="btn btn-danger btn-sm btn-delete" data-id="${session.id}">
+                        <i class="fas fa-trash"></i> Xoá
+                    </button>
+                </div>
+            `;
+
+            // Edit button
+            card.querySelector('.btn-edit').addEventListener('click', () => {
+                const s = sessions.find(x => x.id === session.id);
+                if (s) fillFormForEdit(s);
+            });
+
+            // Delete button
+            card.querySelector('.btn-delete').addEventListener('click', () => {
+                if (confirm('Bạn có chắc muốn xoá buổi học này?')) {
+                    sessions = sessions.filter(x => x.id !== session.id);
+                    markModified();
+                    renderAdminSessions();
+                    showToast('🗑️ Đã xoá buổi học');
+                    if (editingId === session.id) resetForm();
+                }
+            });
+
+            list.appendChild(card);
+        });
+    }
+
+    // ===== UTILS =====
+
+    function formatDate(dateStr) {
+        const days = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+        const d = new Date(dateStr);
+        const dayName = days[d.getDay()];
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yyyy = d.getFullYear();
+        return `${dayName}, ${dd}/${mm}/${yyyy}`;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text || '';
+        return div.innerHTML;
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toastMsg');
+        toastMsg.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Warn before leaving with unsaved changes
+    window.addEventListener('beforeunload', (e) => {
+        if (isModified) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
+    // Init: add one empty homework row
+    addHWRow();
+    </script>
+</body>
+</html>
